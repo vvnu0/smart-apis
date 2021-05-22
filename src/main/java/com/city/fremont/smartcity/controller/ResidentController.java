@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.city.fremont.smartcity.document.Resident;
+import com.city.fremont.smartcity.repository.ResidentDataImpl;
 import com.city.fremont.smartcity.repository.ResidentRepository;
 
 @RestController
@@ -20,13 +21,15 @@ import com.city.fremont.smartcity.repository.ResidentRepository;
 public class ResidentController {
 	private final Logger LOG = LoggerFactory.getLogger(getClass());
 	private final ResidentRepository residentRepository;
+	private final ResidentDataImpl residentDataImpl;
 	
-	public ResidentController(ResidentRepository residentRepository) {
+	public ResidentController(ResidentRepository residentRepository, ResidentDataImpl residentDataImpl) {
 		this.residentRepository = residentRepository;
+		this.residentDataImpl = residentDataImpl;
 	}
 	
 	@RequestMapping(value = "", method = RequestMethod.GET)
-	public List<Resident> getAllUsers() {
+	public List<Resident> getAllResidents() {
 		LOG.info("Getting all users.");
 		return residentRepository.findAll();
 	}
@@ -39,13 +42,13 @@ public class ResidentController {
 	
 
 	@RequestMapping(value = "/create", method = RequestMethod.POST)
-	public Resident addNewUsers(@RequestBody Resident resident) {
-		LOG.info("Saving user.");
+	public Resident addNewResident(@RequestBody Resident resident) {
+		LOG.info("Saving Resident.");
 		return residentRepository.save(resident);
 	}
 	
 	@RequestMapping(value = "/{userId}/settings", method = RequestMethod.GET)
-	public Object getAllUserSettings(@PathVariable String userId) {
+	public Object getAllResidentSettings(@PathVariable String userId) {
 		Resident resident = residentRepository.findById(userId).orElse(null);
 		if (resident != null) {
 			return resident.getSettings();
@@ -55,25 +58,31 @@ public class ResidentController {
 	}
 	
 	@RequestMapping(value = "/settings/{userId}/{key}", method = RequestMethod.GET)
-	public String getUserSetting(@PathVariable String userId, @PathVariable String key) {
+	public String getResidentSetting(@PathVariable String userId, @PathVariable String key) {
 		Resident resident = residentRepository.findById(userId).orElse(null);
 		if (resident != null) {
 			return resident.getSettings().get(key);
 		} else {
-			return "User not found.";
+			return "Resident not found.";
 		}
 	}
 	
-	@RequestMapping(value = "/settings/{userId}/{key}/{value}", method = RequestMethod.GET)
-	public String addUserSetting(@PathVariable String userId, @PathVariable String key, @PathVariable String value) {
+	@RequestMapping(value = "/{userId}/settings/{key}/{value}", method = RequestMethod.GET)
+	public String addResidentSetting(@PathVariable String userId, @PathVariable String key, @PathVariable String value) {
 		Resident resident = residentRepository.findById(userId).orElse(null);
 		if (resident != null) {
 			resident.getSettings().put(key, value);
 			residentRepository.save(resident);
 			return "Setting added";
 		} else {
-			return "User not found.";
+			return "Resident not found.";
 		}
+	}
+	
+	/* Shows how to use the Mongo template DataImpl class */
+	@RequestMapping(value = "/{userId}/settings1/{key}/{value}", method = RequestMethod.GET)
+	public String addResident1Setting(@PathVariable String userId, @PathVariable String key, @PathVariable String value) {
+		return residentDataImpl.addResidentSetting(userId, key, value);
 	}
 	
 }
