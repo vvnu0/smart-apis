@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,7 +16,6 @@ import com.city.fremont.smartcity.repository.ResidentRepository;
 
 @RestController
 @RequestMapping(value="/resident/")
-@CrossOrigin(origins = "*")
 public class ResidentController {
 	private final Logger LOG = LoggerFactory.getLogger(getClass());
 	private final ResidentRepository residentRepository;
@@ -39,7 +37,6 @@ public class ResidentController {
 		LOG.info("Getting user with ID: {}.", userId);
 		return residentRepository.findById(userId).orElse(new Resident());
 	}
-	
 
 	@RequestMapping(value = "/create", method = RequestMethod.POST)
 	public Resident addNewResident(@RequestBody Resident resident) {
@@ -84,5 +81,4 @@ public class ResidentController {
 	public String addResident1Setting(@PathVariable String userId, @PathVariable String key, @PathVariable String value) {
 		return residentDataImpl.addResidentSetting(userId, key, value);
 	}
-	
 }
