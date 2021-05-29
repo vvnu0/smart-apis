@@ -4,34 +4,37 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.city.fremont.smartcity.document.Resident;
 import com.city.fremont.smartcity.repository.ResidentDataImpl;
 import com.city.fremont.smartcity.repository.ResidentRepository;
 
 @RestController
-@RequestMapping(value="/resident/")
+@RequestMapping(value = "/resident/")
 public class ResidentController {
 	private final Logger LOG = LoggerFactory.getLogger(getClass());
 	private final ResidentRepository residentRepository;
 	private final ResidentDataImpl residentDataImpl;
-	
+
 	public ResidentController(ResidentRepository residentRepository, ResidentDataImpl residentDataImpl) {
 		this.residentRepository = residentRepository;
 		this.residentDataImpl = residentDataImpl;
 	}
-	
+
 	@RequestMapping(value = "", method = RequestMethod.GET)
 	public List<Resident> getAllResidents() {
 		LOG.info("Getting all users.");
 		return residentRepository.findAll();
 	}
-	
+
 	@RequestMapping(value = "/{userId}", method = RequestMethod.GET)
 	public Resident getResident(@PathVariable String userId) {
 		LOG.info("Getting user with ID: {}.", userId);
@@ -43,7 +46,7 @@ public class ResidentController {
 		LOG.info("Saving Resident.");
 		return residentRepository.save(resident);
 	}
-	
+
 	@RequestMapping(value = "/{userId}/settings", method = RequestMethod.GET)
 	public Object getAllResidentSettings(@PathVariable String userId) {
 		Resident resident = residentRepository.findById(userId).orElse(null);
@@ -53,7 +56,7 @@ public class ResidentController {
 			return "Resident not found.";
 		}
 	}
-	
+
 	@RequestMapping(value = "/settings/{userId}/{key}", method = RequestMethod.GET)
 	public String getResidentSetting(@PathVariable String userId, @PathVariable String key) {
 		Resident resident = residentRepository.findById(userId).orElse(null);
@@ -63,9 +66,10 @@ public class ResidentController {
 			return "Resident not found.";
 		}
 	}
-	
+
 	@RequestMapping(value = "/{userId}/settings/{key}/{value}", method = RequestMethod.GET)
-	public String addResidentSetting(@PathVariable String userId, @PathVariable String key, @PathVariable String value) {
+	public String addResidentSetting(@PathVariable String userId, @PathVariable String key,
+			@PathVariable String value) {
 		Resident resident = residentRepository.findById(userId).orElse(null);
 		if (resident != null) {
 			resident.getSettings().put(key, value);
@@ -75,10 +79,18 @@ public class ResidentController {
 			return "Resident not found.";
 		}
 	}
-	
+
 	/* Shows how to use the Mongo template DataImpl class */
 	@RequestMapping(value = "/{userId}/settings1/{key}/{value}", method = RequestMethod.GET)
-	public String addResident1Setting(@PathVariable String userId, @PathVariable String key, @PathVariable String value) {
+	public String addResident1Setting(@PathVariable String userId, @PathVariable String key,
+			@PathVariable String value) {
 		return residentDataImpl.addResidentSetting(userId, key, value);
+	}
+
+	@RequestMapping(value = "/proofupload", method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	public String UploadResidentProof(@RequestPart("file") MultipartFile file) {
+		LOG.info("uploading file :: " + file.getName() + "Size :: " + file.getSize());
+		return "success";
+		// residentRepository.save(resident);
 	}
 }
