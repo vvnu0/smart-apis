@@ -16,6 +16,7 @@ public class Resident {
 	private String userName;
 	private String firstName;
 	private String lastName;
+	private String emailAddress;
 	private Map<String, String> settings = new HashMap<>(); 
 	private Date createnDate = new Date();
 	private Date updateDate = new Date();
@@ -46,6 +47,14 @@ public class Resident {
 
 	public String getUserName() {
 		return userName;
+	}
+	
+	public String getEmailAddress() {
+		return emailAddress;
+	}
+
+	public void setEmailAddress(String emailAddress) {
+		this.emailAddress = emailAddress;
 	}
 
 	public void setUserName(String userName) {
